@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "release_tag": "installation-candidate-34720590171-1",
+  "stock_source": {
+    "repository": "https://github.com/openclaw/openclaw",
+    "commit": "1391f7cd2d40ab5bbcf2f5f831d3a64f520e72d7",
+    "unchanged_recipe_sha256": {
+      "scripts/sandbox-setup.sh": "3cccbc7ab1fbedebaa1e50dec0481e455437c262b89eba5f2bba007b3baac768",
+      "scripts/sandbox-common-setup.sh": "3e5c7d507b25cc2288a4fbc8545c357090671d8ee3c41f7716b981655a17c4cb",
+      "scripts/sandbox-browser-setup.sh": "f9a5c678ed6f238727043ed8869861363dc6f6799966cb1d3a8a9ce7e1c7dbc5"
+    }
+  },
+  "template_source": {
+    "source_url": "https://cloud-images.ubuntu.com/noble/20260911/noble-server-cloudimg-amd64.img",
+    "source_sha256": "612b2c0cc1bc413a6cb8c38fd611794caf0f2b436c50013d8b3794db12ad7354",
+    "checksum_manifest_sha256": "86919782a8b9e4dbd9478f00f8fda31da67af11facfc4408138a487d20bbff33",
+    "converter": "qemu-img version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+    "virtual_size": 3758096384,
+    "guest_disk_matches_signed_source": true,
+    "booted": false
+  },
+  "archives": [
+    {
+      "role": "base",
+      "file": "openclaw-stock-base-f322550e6dd8.tar.gz",
+      "sha256": "77a9bbc9394cd10b2b619167c63e9591395657779d1fc14b23a8a4f0b57926b5",
+      "bytes": 75898925,
+      "url": "https://github.com/LancasterAgentic/openclaw-installation-artifacts/releases/download/installation-candidate-34720590171-1/openclaw-stock-base-f322550e6dd8.tar.gz",
+      "image_id": "sha256:f322550e6dd817b57959af9cd6d4aeb193b4503448d226671f5daeed8c2d53dc",
+      "platform": "linux/amd64"
+    },
+    {
+      "role": "sandbox",
+      "file": "openclaw-stock-sandbox-d3170cbce2b8.tar.gz",
+      "sha256": "1bdb70b667e06e8a3aed128a96ac9fa732ff660a2e9b01e663260dcf8a3ec3be",
+      "bytes": 752940076,
+      "url": "https://github.com/LancasterAgentic/openclaw-installation-artifacts/releases/download/installation-candidate-34720590171-1/openclaw-stock-sandbox-d3170cbce2b8.tar.gz",
+      "image_id": "sha256:d3170cbce2b8f32a9410024d4c6a2e27e404d2517a5b9f7c54e952024abd909c",
+      "platform": "linux/amd64"
+    },
+    {
+      "role": "browser",
+      "file": "openclaw-stock-browser-d365137b4a57.tar.gz",
+      "sha256": "598d9b25949b6e691501ce53ec08c4285b5bd27a03a9782a317047a823fa6d11",
+      "bytes": 470239498,
+      "url": "https://github.com/LancasterAgentic/openclaw-installation-artifacts/releases/download/installation-candidate-34720590171-1/openclaw-stock-browser-d365137b4a57.tar.gz",
+      "image_id": "sha256:d365137b4a579f1f7bebe94b5d3be7c8579ae0a69054f037f4777e4390c7800d",
+      "platform": "linux/amd64"
+    },
+    {
+      "role": "hyperv-template",
+      "file": "ubuntu-noble-20260911-amd64-unbooted.vhdx.gz",
+      "sha256": "3c7ad70d77ed551e5213dfbbf9c2a423abbcac3b9c4ac46f14835b3c3437f285",
+      "bytes": 631739520,
+      "url": "https://github.com/LancasterAgentic/openclaw-installation-artifacts/releases/download/installation-candidate-34720590171-1/ubuntu-noble-20260911-amd64-unbooted.vhdx.gz",
+      "platform": "linux/amd64",
+      "vhdx": {
+        "file": "ubuntu-noble-20260911-amd64-unbooted.vhdx",
+        "sha256": "e9a496012358890483352b8785cfc3637c3fe0570b13094d5fda80ab78397383",
+        "bytes": 2189426688
+      }
+    }
+  ],
+  "upstream_notices": {
+    "OPENCLAW-LICENSE": {
+      "source_url": "https://raw.githubusercontent.com/openclaw/openclaw/1391f7cd2d40ab5bbcf2f5f831d3a64f520e72d7/LICENSE",
+      "bytes": 1170,
+      "sha256": "73571b25326281d369087f469842c02444fe39faaecebda4d82ed21ff3a1c29d"
+    },
+    "OPENCLAW-THIRD_PARTY_NOTICES.md": {
+      "source_url": "https://raw.githubusercontent.com/openclaw/openclaw/1391f7cd2d40ab5bbcf2f5f831d3a64f520e72d7/THIRD_PARTY_NOTICES.md",
+      "bytes": 2855,
+      "sha256": "c1d1bbc550feee74853eba104e347341569cbbbe37a9f77659993ca0766277d5"
+    }
+  }
+}
