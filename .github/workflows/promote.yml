@@ -1,0 +1,27 @@
+name: Promote verified stock archives
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: stock-archive-promotion
+  cancel-in-progress: false
+jobs:
+  promote:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify inputs and publish exact archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STOCK_ARCHIVE_SIGNED_URLS: ${{ secrets.STOCK_ARCHIVE_SIGNED_URLS_20260912 }}
+        run: python scripts/promote.py
