@@ -14,9 +14,13 @@ REPOSITORY = "LancasterAgentic/openclaw-installation-artifacts"
 ROOT = Path(__file__).resolve().parents[1]
 
 
+class PromotionError(ValueError):
+    """Only explicit messages in this module are safe to print."""
+
+
 def need(value, message):
     if not value:
-        raise ValueError(message)
+        raise PromotionError(message)
 
 
 def manifest_rows(manifest):
@@ -56,9 +60,9 @@ def verify(path, row):
     need(digest == row["sha256"], "Archive checksum mismatch: " + row["file"])
 
 
-def gh(*args):
-    result = subprocess.run(["gh", *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=1200)
-    need(result.returncode == 0, "GitHub operation failed: " + args[0])
+def gh(*args, payload=None):
+    result = subprocess.run(["gh", *args], input=payload, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=1200)
+    need(result.returncode == 0, "GitHub operation failed: " + " ".join(args[:2]))
     return result.stdout
 
 
@@ -72,9 +76,9 @@ def main():
     links = signed_links(os.environ.pop("STOCK_ARCHIVE_SIGNED_URLS", ""), rows)
     tag = manifest["release_tag"]
     # No clobber or release deletion: an existing release requires explicit inspection.
-    existing = subprocess.run(["gh", "api", f"repos/{REPOSITORY}/releases/tags/{tag}"],
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
-    need(existing.returncode != 0 and b"HTTP 404" in existing.stderr, "Release already exists or lookup failed")
+    # Tag lookup sees published releases only. Listing includes owned drafts too.
+    pages = json.loads(gh("api", f"repos/{REPOSITORY}/releases?per_page=100", "--paginate", "--slurp"))
+    need(not any(release["tag_name"] == tag for page in pages for release in page), "Release already exists")
     with tempfile.TemporaryDirectory(prefix="stock-promotion-") as directory:
         paths = []
         for row in rows:
@@ -88,17 +92,21 @@ def main():
             paths.append(str(path))
             print(json.dumps({"verified": row["file"], "bytes": row["bytes"], "sha256": row["sha256"]}), flush=True)
         # All four inputs passed before any release or asset mutation.
-        gh("release", "create", tag, "--repo", REPOSITORY, "--target", os.environ["GITHUB_SHA"],
-           "--draft", "--prerelease", "--title", "Verified upstream installation artifacts", "--notes-file", str(ROOT / "README.md"))
+        created = json.loads(gh("api", f"repos/{REPOSITORY}/releases", "--method", "POST", "--input", "-",
+            payload=json.dumps({"tag_name": tag, "target_commitish": os.environ["GITHUB_SHA"], "draft": True,
+                "prerelease": True, "name": "Verified upstream installation artifacts",
+                "body": (ROOT / "README.md").read_text(encoding="utf-8")}).encode()))
+        release_id = created["id"]
+        need(type(release_id) is int and release_id > 0, "Created release has no valid ID")
         gh("release", "upload", tag, "--repo", REPOSITORY, *paths,
            *[str(ROOT / name) for name in ("manifest.json", "SHA256SUMS", "OPENCLAW-LICENSE", "OPENCLAW-THIRD_PARTY_NOTICES.md")])
-        release = json.loads(gh("api", f"repos/{REPOSITORY}/releases/tags/{tag}"))
+        release = json.loads(gh("api", f"repos/{REPOSITORY}/releases/{release_id}"))
         assets = {asset["name"]: asset for asset in release["assets"]}
         for row in rows:
             asset = assets.get(row["file"], {})
             need(asset.get("size") == row["bytes"] and asset.get("digest") == "sha256:" + row["sha256"],
                  "Uploaded archive digest or size differs: " + row["file"])
-        gh("release", "edit", tag, "--repo", REPOSITORY, "--draft=false")
+        gh("api", f"repos/{REPOSITORY}/releases/{release_id}", "--method", "PATCH", "-F", "draft=false")
         print(json.dumps({"status": "published", "repository": REPOSITORY, "release_tag": tag,
                           "archives": rows, "workflow_commit": os.environ["GITHUB_SHA"]}), flush=True)
 
@@ -108,5 +116,6 @@ if __name__ == "__main__":
         main()
     except Exception as error:
         # Never serialize request/subprocess exceptions: they can contain signed links.
-        print("Promotion failed (" + type(error).__name__ + "); verified existing assets remain preserved.", file=sys.stderr)
+        detail = str(error) if isinstance(error, PromotionError) else type(error).__name__
+        print("Promotion failed (" + detail + "); verified existing assets remain preserved.", file=sys.stderr)
         sys.exit(1)
