@@ -19,4 +19,8 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
+      - name: No GitHub-hosted runner without an allowlist line (Alex 2026-11-16)
+        run: |
+          python scripts/hosted_label_guard.py --selftest
+          python scripts/hosted_label_guard.py
       - run: python -m unittest discover -s tests -v
