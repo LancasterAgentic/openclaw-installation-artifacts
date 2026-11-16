@@ -1,0 +1,3 @@
+# Temporary exceptions to hosted_label_guard.py: `<workflow file> <reason>` (whole file) or `<workflow file>:<job id> <reason>`. The reason says what removes the line.
+check.yml PUBLIC repo: GitHub-hosted runners are free for public repos and the lancaster-ci runner group does not admit public repos (a self-hosted runner on a public repo would run strangers' pull-request code); stays until the repo is made private (Manager 2026-11-16)
+promote.yml PUBLIC repo: same reason as check.yml; this one holds a write token and a secret, which is another reason not to put it on a shared runner; stays until the repo is made private (Manager 2026-11-16)
